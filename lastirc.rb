@@ -38,6 +38,13 @@ class LastIRC
     end
   end
 
+  match /last ([^ ]+)$/, method: :command_last
+  match /plays ([^ ]+)$/, method: :command_plays
+  match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
+  match /bestfriend ([^ ]+)$/, method: :command_bestfriend
+  match /hipster (-[^ ]+)? ?([^ ]+)$/, method: :command_hipster
+  match /hipsterbattle (-[^ ]+)? ?(.+)/, method: :command_hipsterbattle
+
   def format_track(track)
     s = ""
     s << track['artist']['content']
@@ -53,13 +60,6 @@ class LastIRC
     s << ')'
     s 
   end
-
-  match /last ([^ ]+)$/, method: :command_last
-  match /plays ([^ ]+)$/, method: :command_plays
-  match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
-  match /bestfriend ([^ ]+)$/, method: :command_bestfriend
-  match /hipster (-[^ ]+)? ?([^ ]+)$/, method: :command_hipster
-  match /hipsterbattle (-[^ ]+)? ?(.+)/, method: :command_hipsterbattle
 
   def command_last(m, user)
     api_transaction(m) do
