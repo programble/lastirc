@@ -93,7 +93,7 @@ class LastIRC
 
   def command_bestfriend(m, user)
     api_transaction(m) do
-      friends = @lastfm.user.get_friends(user).map {|x| x['name'] }
+      friends = @lastfm.user.get_friends(user, :limit => 0).map {|x| x['name'] }
       scores = {}
       friends.each do |friend|
         scores[friend] = @lastfm.tasteometer.compare(:user, :user, user, friend)['score'].to_f
