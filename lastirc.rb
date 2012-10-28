@@ -71,7 +71,7 @@ class LastIRC
         if matches > artists.length
           s << "(#{matches} artist#{matches == 1 ? '' : 's'} in common, including: "
         else
-          s << "(#{matches} artist#{matches == 1 ? '' : 's'} common: "
+          s << "(#{matches} artist#{matches == 1 ? '' : 's'} in common: "
         end
         s << artists.join(', ')
         s << ')'
