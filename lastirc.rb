@@ -48,7 +48,7 @@ class LastIRC
   end
 
   match /last (.+)/, method: :command_last
-  match /taste ([^ ]+) (.+)/, method: :command_taste
+  match /compare ([^ ]+) (.+)/, method: :command_compare
 
   def command_last(m, user)
     api_transaction(m) do
@@ -57,7 +57,7 @@ class LastIRC
     end
   end
 
-  def command_taste(m, user1, user2)
+  def command_compare(m, user1, user2)
     api_transaction(m) do
       compare = @lastfm.tasteometer.compare(:user, :user, user1, user2)
       score = compare['score'].to_f * 100
