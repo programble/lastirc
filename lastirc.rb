@@ -51,6 +51,7 @@ class LastIRC
   match /plays ([^ ]+)$/, method: :command_plays
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
   match /bestfriend ([^ ]+)$/, method: :command_bestfriend
+  match /hipster ([^ ]+)$/, method: :command_hipster
 
   def command_last(m, user)
     api_transaction(m) do
@@ -100,6 +101,24 @@ class LastIRC
       end
       bestfriend = scores.max {|a, b| a[1] <=> b[1] }.first
       m.reply("#{user}'s best friend is #{bestfriend}")
+    end
+  end
+
+  def command_hipster(m, user)
+    api_transaction(m) do
+      # TODO: Expire this cache?
+      @chart_top ||= @lastfm.chart.get_top_artists(:limit => 0).map {|x| x['name'] }
+      user_top = @lastfm.user.get_top_artists(user).map {|x| x['name'] }
+      total_weight = user_top.length.downto(1).reduce(:+)
+      score = 0
+      weight = user_top.length
+      user_top.each do |artist|
+        score += weight if @chart_top.include?(artist)
+        puts "#{artist}: #{weight}" if @chart_top.include?(artist)
+        weight -= 1
+      end
+      hipster = score.to_f / total_weight * 100.0
+      m.reply("#{user} is #{'%0.2f' % hipster}% mainstream")
     end
   end
 end
