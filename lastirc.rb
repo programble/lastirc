@@ -112,21 +112,32 @@ class LastIRC
     end
   end
 
-  def command_hipster(m, user)
+  def calculate_hipster(m, user)
     api_transaction(m) do
       # TODO: Expire this cache?
       @chart_top ||= @lastfm.chart.get_top_artists(:limit => 0).map {|x| x['name'] }
-      user_top = @lastfm.user.get_top_artists(user).map {|x| x['name'] }
-      total_weight = user_top.length.downto(1).reduce(:+)
+      user_top = @lastfm.user.get_top_artists(user)
+      total_weight = user_top.map {|x| x['playcount'].to_i }.reduce(:+)
       score = 0
-      weight = user_top.length
       user_top.each do |artist|
-        score += weight if @chart_top.include?(artist)
-        weight -= 1
+        score += artist['playcount'].to_i if @chart_top.include?(artist['name'])
       end
-      hipster = score.to_f / total_weight * 100.0
-      m.reply("#{user} is #{'%0.2f' % hipster}% mainstream")
+      score.to_f / total_weight * 100.0
     end
+  end
+
+  def command_hipster(m, user)
+    hipster = calculate_hipster(m, user)
+    m.reply("#{user} is #{'%0.2f' % hipster}% mainstream")
+  end
+
+  def command_hipsterbattle(m, users)
+    hipsters = {}
+    users.split(' ').each do |user|
+      hipsters[user] = calculate_hipster(m, user)
+    end
+    winner, score = hipsters.min {|a, b| a[1] <=> b[1] }
+    m.reply("#{winner} wins with #{'%0.2f' % score}% mainstream")
   end
 end
 
