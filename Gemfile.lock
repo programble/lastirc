@@ -1,7 +1,7 @@
 GIT
   remote: https://github.com/programble/ruby-lastfm.git
-  revision: 9a385ad67f746d6fe084806e59d3610ee7206c9f
-  branch: tasteometer
+  revision: 52c53741a63938e35f74098958f0679922c8a67c
+  branch: lastirc
   specs:
     lastfm (1.9.0)
       activesupport (>= 3.0.3)
