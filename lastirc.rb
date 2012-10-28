@@ -58,8 +58,8 @@ class LastIRC
   match /plays ([^ ]+)$/, method: :command_plays
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
   match /bestfriend ([^ ]+)$/, method: :command_bestfriend
-  match /hipster ([^ ]+)$/, method: :command_hipster
-  match /hipsterbattle (.+)/, method: :command_hipsterbattle
+  match /hipster -?([^ ]+)? ?([^ ]+)$/, method: :command_hipster
+  match /hipsterbattle -?([^ ]+)? ?(.+)/, method: :command_hipsterbattle
 
   def command_last(m, user)
     api_transaction(m) do
@@ -112,11 +112,11 @@ class LastIRC
     end
   end
 
-  def calculate_hipster(m, user)
+  def calculate_hipster(m, period, user)
     api_transaction(m) do
       # TODO: Expire this cache?
       @chart_top ||= @lastfm.chart.get_top_artists(:limit => 0).map {|x| x['name'] }
-      user_top = @lastfm.user.get_top_artists(user)
+      user_top = @lastfm.user.get_top_artists(:user => user, :period => period)
       total_weight = user_top.map {|x| x['playcount'].to_i }.reduce(:+)
       score = 0
       user_top.each do |artist|
@@ -126,15 +126,15 @@ class LastIRC
     end
   end
 
-  def command_hipster(m, user)
-    hipster = calculate_hipster(m, user)
+  def command_hipster(m, period, user)
+    hipster = calculate_hipster(m, period || 'overall', user)
     m.reply("#{user} is #{'%0.2f' % hipster}% mainstream")
   end
 
-  def command_hipsterbattle(m, users)
+  def command_hipsterbattle(m, period, users)
     hipsters = {}
     users.split(' ').each do |user|
-      hipsters[user] = calculate_hipster(m, user)
+      hipsters[user] = calculate_hipster(m, period || 'overall', user)
     end
     winner, score = hipsters.min {|a, b| a[1] <=> b[1] }
     m.reply("#{winner} wins with #{'%0.2f' % score}% mainstream")
