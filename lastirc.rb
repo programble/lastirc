@@ -58,8 +58,8 @@ class LastIRC
   match /plays ([^ ]+)$/, method: :command_plays
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
   match /bestfriend ([^ ]+)$/, method: :command_bestfriend
-  match /hipster -?([^ ]+)? ?([^ ]+)$/, method: :command_hipster
-  match /hipsterbattle -?([^ ]+)? ?(.+)/, method: :command_hipsterbattle
+  match /hipster (-[^ ]+)? ?([^ ]+)$/, method: :command_hipster
+  match /hipsterbattle (-[^ ]+)? ?(.+)/, method: :command_hipsterbattle
 
   def command_last(m, user)
     api_transaction(m) do
@@ -127,14 +127,14 @@ class LastIRC
   end
 
   def command_hipster(m, period, user)
-    hipster = calculate_hipster(m, period || 'overall', user)
+    hipster = calculate_hipster(m, period ? period[1..-1] : 'overall' , user)
     m.reply("#{user} is #{'%0.2f' % hipster}% mainstream")
   end
 
   def command_hipsterbattle(m, period, users)
     hipsters = {}
     users.split(' ').each do |user|
-      hipsters[user] = calculate_hipster(m, period || 'overall', user)
+      hipsters[user] = calculate_hipster(m, period ? period[1..-1] : 'overall', user)
     end
     winner, score = hipsters.min {|a, b| a[1] <=> b[1] }
     m.reply("#{winner} wins with #{'%0.2f' % score}% mainstream")
