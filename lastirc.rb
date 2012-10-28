@@ -61,7 +61,23 @@ class LastIRC
     api_transaction(m) do
       compare = @lastfm.tasteometer.compare(:user, :user, user1, user2)
       score = compare['score'].to_f * 100
-      m.reply("#{user1} and #{user2} have #{sprintf('%0.2f', score)}% similar taste")
+      matches = compare['artists']['matches'].to_i
+      artists = compare['artists']['artist'].map {|x| x['name'] } if matches > 0
+
+      s = ""
+      s << "#{user1} and #{user2} have "
+      s << '%0.2f' % score << '% similar taste '
+      if matches > 0
+        if matches > artists.length
+          s << "(#{matches} artist#{matches == 1 ? '' : 's'} in common, including: "
+        else
+          s << "(#{matches} artist#{matches == 1 ? '' : 's'} common: "
+        end
+        s << artists.join(', ')
+        s << ')'
+      end
+
+      m.reply(s)
     end
   end
 end
