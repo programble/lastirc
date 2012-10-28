@@ -122,7 +122,6 @@ class LastIRC
       weight = user_top.length
       user_top.each do |artist|
         score += weight if @chart_top.include?(artist)
-        puts "#{artist}: #{weight}" if @chart_top.include?(artist)
         weight -= 1
       end
       hipster = score.to_f / total_weight * 100.0
