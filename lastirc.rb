@@ -43,7 +43,13 @@ class LastIRC
     s << ' - '
     s << track['name']
     s << ' [' << track['album']['content'] << ']'
-    s << ' (' << Time.at(track['date']['uts'].to_i).ago_in_words << ')'
+    s << ' ('
+    if track['nowplaying']
+      s << 'Listening now'
+    else
+      s << Time.at(track['date']['uts'].to_i).ago_in_words
+    end
+    s << ')'
     s 
   end
 
