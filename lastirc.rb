@@ -47,8 +47,9 @@ class LastIRC
     s 
   end
 
-  match /last (.+)/, method: :command_last
-  match /compare ([^ ]+) (.+)/, method: :command_compare
+  match /last ([^ ]+)$/, method: :command_last
+  match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
+  match /bestfriend ([^ ]+)$/, method: :command_bestfriend
 
   def command_last(m, user)
     api_transaction(m) do
@@ -78,6 +79,18 @@ class LastIRC
       end
 
       m.reply(s)
+    end
+  end
+
+  def command_bestfriend(m, user)
+    api_transaction(m) do
+      friends = @lastfm.user.get_friends(user).map {|x| x['name'] }
+      scores = {}
+      friends.each do |friend|
+        scores[friend] = @lastfm.tasteometer.compare(:user, :user, user, friend)['score'].to_f
+      end
+      bestfriend = scores.max {|a, b| a[1] <=> b[1] }.first
+      m.reply("#{user}'s best friend is #{bestfriend}")
     end
   end
 end
