@@ -48,6 +48,7 @@ class LastIRC
   end
 
   match /last ([^ ]+)$/, method: :command_last
+  match /plays ([^ ]+)$/, method: :command_plays
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
   match /bestfriend ([^ ]+)$/, method: :command_bestfriend
 
@@ -55,6 +56,14 @@ class LastIRC
     api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user).first
       m.reply("#{user}: #{format_track(track)}")
+    end
+  end
+
+  def command_plays(m, user)
+    api_transaction(m) do
+      info = @lastfm.user.get_info(user)
+      registered = Time.at(info['registered']['unixtime'].to_i)
+      m.reply("#{user}: #{info['playcount']} plays since #{registered.strftime('%d %b %Y')}")
     end
   end
 
