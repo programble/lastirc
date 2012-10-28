@@ -29,6 +29,14 @@ class LastIRC
     @lastfm = Lastfm.new(Configru.lastfm.token, Configru.lastfm.secret)
   end
 
+  def api_transaction(m, &block)
+    begin
+      block.call
+    rescue Lastfm::ApiError => e
+      m.reply("Last.fm error: #{e.message.strip}")
+    end
+  end
+
   def format_track(track)
     s = ""
     s << track['artist']['content']
@@ -43,21 +51,17 @@ class LastIRC
   match /taste ([^ ]+) (.+)/, method: :command_taste
 
   def command_last(m, user)
-    begin
+    api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user).first
       m.reply("#{user}: #{format_track(track)}")
-    rescue Lastfm::ApiError => e
-      m.reply("Last.fm error: #{e.message.strip}", true)
     end
   end
 
   def command_taste(m, user1, user2)
-    begin
+    api_transaction(m) do
       compare = @lastfm.tasteometer.compare(:user, :user, user1, user2)
       score = compare['score'].to_f * 100
       m.reply("#{user1} and #{user2} have #{sprintf('%0.2f', score)}% similar taste")
-    rescue Lastfm::ApiError => e
-      m.reply("Last.fm error: #{e.message.strip}", true)
     end
   end
 end
