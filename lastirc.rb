@@ -34,6 +34,7 @@ class LastIRC
       block.call
     rescue Lastfm::ApiError => e
       m.reply("Last.fm error: #{e.message.strip}")
+      raise
     end
   end
 
@@ -58,6 +59,7 @@ class LastIRC
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
   match /bestfriend ([^ ]+)$/, method: :command_bestfriend
   match /hipster ([^ ]+)$/, method: :command_hipster
+  match /hipsterbattle (.+)/, method: :command_hipsterbattle
 
   def command_last(m, user)
     api_transaction(m) do
