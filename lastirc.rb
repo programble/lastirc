@@ -50,7 +50,7 @@ class LastIRC
     s << track['artist']['content']
     s << ' - '
     s << track['name']
-    s << ' [' << track['album']['content'] << ']'
+    s << ' [' << track['album']['content'] << ']' if track['album']['content']
     s << ' ('
     if track['nowplaying']
       s << 'Listening now'
