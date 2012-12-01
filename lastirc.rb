@@ -2,6 +2,7 @@ require 'cinch'
 require 'cinch/plugins/basic_ctcp'
 require 'configru'
 require 'lastfm'
+require 'pstore'
 require 'time-lord'
 
 Configru.load('lastirc.yml') do
@@ -26,6 +27,7 @@ class LastIRC
   def initialize(*args)
     super(*args)
 
+    @pstore = PStore.new('lastirc.pstore')
     @lastfm = Lastfm.new(Configru.lastfm.token, Configru.lastfm.secret)
   end
 
@@ -38,12 +40,31 @@ class LastIRC
     end
   end
 
-  match /last ([^ ]+)$/, method: :command_last
-  match /plays ([^ ]+)$/, method: :command_plays
+  match /assoc(?:iate)? ?([^ ]+)?$/, method: :command_associate
+  match /last ?([^ ]+)?$/, method: :command_last
+  match /plays ?([^ ]+)?$/, method: :command_plays
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
-  match /bestfriend ([^ ]+)$/, method: :command_bestfriend
-  match /hipster (-[^ ]+)? ?([^ ]+)$/, method: :command_hipster
+  match /bestfriend ?([^ ]+)?$/, method: :command_bestfriend
+  match /hipster ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_hipster
   match /hipsterbattle (-[^ ]+)? ?(.+)/, method: :command_hipsterbattle
+
+  def command_associate(m, user)
+    if user
+      @pstore.transaction { @pstore[m.user.nick] = user }
+      m.reply("Your nick is now associated with the Last.fm account '#{user}'", true)
+    else
+      assoc = pstore_get(m)
+      if assoc
+        m.reply("Your nick is associated with the Last.fm account '#{assoc}'", true)
+      else
+        m.reply("Your nick is not associated with a Last.fm account", true)
+      end
+    end
+  end
+
+  def pstore_get(m)
+    @pstore.transaction(true) { @pstore[m.user.nick] }
+  end
 
   def format_track(track)
     s = ""
@@ -62,6 +83,7 @@ class LastIRC
   end
 
   def command_last(m, user)
+    user = pstore_get(m) unless user
     api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user).first
       m.reply("#{user}: #{format_track(track)}")
@@ -69,6 +91,7 @@ class LastIRC
   end
 
   def command_plays(m, user)
+    user = pstore_get(m) unless user
     api_transaction(m) do
       info = @lastfm.user.get_info(user)
       registered = Time.at(info['registered']['unixtime'].to_i)
@@ -101,6 +124,7 @@ class LastIRC
   end
 
   def command_bestfriend(m, user)
+    user = pstore_get(m) unless user
     api_transaction(m) do
       friends = @lastfm.user.get_friends(user, :limit => 0).map {|x| x['name'] }
       scores = {}
@@ -127,6 +151,7 @@ class LastIRC
   end
 
   def command_hipster(m, period, user)
+    user = pstore_get(m) unless user
     hipster = calculate_hipster(m, period ? period[1..-1] : 'overall' , user)
     m.reply("#{user} is #{'%0.2f' % hipster}% mainstream")
   end
