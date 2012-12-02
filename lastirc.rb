@@ -41,7 +41,7 @@ class LastIRC
   end
 
   def pstore_get(m)
-    @pstore.transaction(true) { @pstore[m.user.nick] }
+    @pstore.transaction(true) { @pstore[m.user.nick] } || m.user.nick
   end
 
   match /assoc(?:iate)?\? ?([^ ]+)?$/, method: :command_associateq
@@ -58,7 +58,7 @@ class LastIRC
       @pstore.transaction { @pstore[m.user.nick] = user }
       m.reply("Your nick is now associated with the Last.fm account '#{user}'", true)
     else
-      assoc = pstore_get(m)
+      assoc = @pstore.transaction(true) { @pstore[m.user.nick] }
       if assoc
         m.reply("Your nick is associated with the Last.fm account '#{assoc}'", true)
       else
