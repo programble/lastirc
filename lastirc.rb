@@ -46,12 +46,19 @@ class LastIRC
 
   match /assoc(?:iate)?\? ?([^ ]+)?$/, method: :command_associateq
   match /assoc(?:iate)? ?([^ ]+)?$/, method: :command_associate
+
   match /last ?([^ ]+)?$/, method: :command_last
   match /plays ?([^ ]+)?$/, method: :command_plays
+
   match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
   match /bestfriend ?([^ ]+)?$/, method: :command_bestfriend
+
   match /hipster ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_hipster
   match /hipsterbattle (-[^ ]+)? ?(.+)/, method: :command_hipsterbattle
+
+  match /topartist ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_topartist
+  match /topalbum ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_topalbum
+  match /toptrack ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_toptrack
 
   def command_associate(m, user)
     if user
@@ -174,6 +181,24 @@ class LastIRC
     end
     winner, score = hipsters.min {|a, b| a[1] <=> b[1] }
     m.reply("#{winner} wins with #{'%0.2f' % score}% mainstream")
+  end
+
+  def command_topartist(m, period, user)
+    user = pstore_get(m) unless user
+    top = @lastfm.user.get_top_artists(:user => user, :period => period ? period[1..-1] : 'overall', :limit => 1)
+    m.reply("#{user}: #{top['name']} (#{top['playcount']} plays)")
+  end
+
+  def command_topalbum(m, period, user)
+    user = pstore_get(m) unless user
+    top = @lastfm.user.get_top_albums(:user => user, :period => period ? period[1..-1] : 'overall', :limit => 1)
+    m.reply("#{user}: #{top['artist']['name']} - #{top['name']} (#{top['playcount']} plays)")
+  end
+
+  def command_toptrack(m, period, user)
+    user = pstore_get(m) unless user
+    top = @lastfm.user.get_top_tracks(:user => user, :period => period ? period[1..-1] : 'overall', :limit => 1)
+    m.reply("#{user}: #{top['artist']['name']} - #{top['name']} (#{top['playcount']} plays)")
   end
 end
 
