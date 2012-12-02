@@ -40,6 +40,11 @@ class LastIRC
     end
   end
 
+  def pstore_get(m)
+    @pstore.transaction(true) { @pstore[m.user.nick] }
+  end
+
+  match /assoc(?:iate)?\? ?([^ ]+)?$/, method: :command_associateq
   match /assoc(?:iate)? ?([^ ]+)?$/, method: :command_associate
   match /last ?([^ ]+)?$/, method: :command_last
   match /plays ?([^ ]+)?$/, method: :command_plays
@@ -62,8 +67,14 @@ class LastIRC
     end
   end
 
-  def pstore_get(m)
-    @pstore.transaction(true) { @pstore[m.user.nick] }
+  def command_associateq(m, nick)
+    return command_associate(m, nil) unless nick
+    assoc = @pstore.transaction(true) { @pstore[nick] }
+    if assoc
+      m.reply("#{nick} is associated with the Last.fm account '#{assoc}'")
+    else
+      m.reply("#{nick} is not associated with a Last.fm account")
+    end
   end
 
   def format_track(track)
