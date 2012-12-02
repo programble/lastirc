@@ -17,6 +17,7 @@ Configru.load('lastirc.yml') do
     option_required :token, String
     option_required :secret, String
   end
+  option :pstore, String, 'lastirc.pstore'
 end
 
 class LastIRC
@@ -27,7 +28,7 @@ class LastIRC
   def initialize(*args)
     super(*args)
 
-    @pstore = PStore.new('lastirc.pstore')
+    @pstore = PStore.new(Configru.pstore)
     @lastfm = Lastfm.new(Configru.lastfm.token, Configru.lastfm.secret)
   end
 
