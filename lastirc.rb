@@ -61,6 +61,8 @@ class LastIRC
   match /topalbum ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_topalbum
   match /toptrack ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_toptrack
 
+  match /help ?([^ ]+)?$/, method: :command_help
+
   def command_associate(m, user)
     if user
       @pstore.transaction { @pstore[m.user.nick] = user }
@@ -201,6 +203,28 @@ class LastIRC
     user = pstore_get(m) unless user
     top = @lastfm.user.get_top_tracks(:user => user, :period => period ? period[1..-1] : 'overall', :limit => 1)
     m.reply("#{user}: #{top['artist']['name']} - #{top['name']} (#{top['playcount']} plays)")
+  end
+
+  Help = {
+    assoc: "{user}: Associate user with your nick",
+    assoc?: "[nick]: Retrieve user associated with nick",
+    last: "[-index] [user]: Retrieve user's last scrobble",
+    plays: "[user]: Retrieve user's scrobble count",
+    compare: "{user} {user}: Compare music taste of two users",
+    bestfriend: "[user]: Determine which of user's friends has most similar taste",
+    hipster: "[-period] [user]: Calculate how mainstream user's taste is",
+    hipsterbattle: "[-period] {user} {user}: Calculate which of two users has less mainstream taste",
+    topartist: "[-period] [user]: Retrieve user's most played artist",
+    topalbum: "[-period] [user]: Retrieve user's most played album",
+    toptrack: "[-period] [user]: Retrieve user's most played track"
+  }
+
+  def command_help(m, command)
+    if command
+      m.reply("#{command} #{Help[command.to_sym]}", true) if Help.include?(command.to_sym)
+    else
+      m.reply("commands: #{Help.keys.join(', ')}", true)
+    end
   end
 end
 
