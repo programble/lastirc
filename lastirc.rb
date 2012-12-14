@@ -51,7 +51,7 @@ class LastIRC
   match /last ?(-\d+)? ?([^ ]+)?$/, method: :command_last
   match /plays ?([^ ]+)?$/, method: :command_plays
 
-  match /compare ([^ ]+) ([^ ]+)$/, method: :command_compare
+  match /compare ?([^ ]+)? ([^ ]+)$/, method: :command_compare
   match /bestfriend ?([^ ]+)?$/, method: :command_bestfriend
 
   match /hipster ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_hipster
@@ -122,6 +122,7 @@ class LastIRC
   end
 
   def command_compare(m, user1, user2)
+    user1 = pstore_get(m) unless user1
     api_transaction(m) do
       compare = @lastfm.tasteometer.compare(:user, :user, user1, user2)
       score = compare['score'].to_f * 100
@@ -210,7 +211,7 @@ class LastIRC
     assoc?: "[nick]: Retrieve user associated with nick",
     last: "[-index] [user]: Retrieve user's last scrobble",
     plays: "[user]: Retrieve user's scrobble count",
-    compare: "{user} {user}: Compare music taste of two users",
+    compare: "[user] {user}: Compare music taste of two users",
     bestfriend: "[user]: Determine which of user's friends has most similar taste",
     hipster: "[-period] [user]: Calculate how mainstream user's taste is",
     hipsterbattle: "[-period] {user} {user}: Calculate which of two users has less mainstream taste",
