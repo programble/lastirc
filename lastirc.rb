@@ -214,7 +214,7 @@ class LastIRC
     compare: "[user] {user}: Compare music taste of two users",
     bestfriend: "[user]: Determine which of user's friends has most similar taste",
     hipster: "[-period] [user]: Calculate how mainstream user's taste is",
-    hipsterbattle: "[-period] {user} {user}: Calculate which of two users has less mainstream taste",
+    hipsterbattle: "[-period] {users...}: Calculate which user has least mainstream taste",
     topartist: "[-period] [user]: Retrieve user's most played artist",
     topalbum: "[-period] [user]: Retrieve user's most played album",
     toptrack: "[-period] [user]: Retrieve user's most played track"
