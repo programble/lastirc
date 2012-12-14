@@ -61,6 +61,8 @@ class LastIRC
   match /topalbum ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_topalbum
   match /toptrack ?(-[^ ]+)? ?([^ ]+)?$/, method: :command_toptrack
 
+  match /inform (#[^ ]+)$/, method: :command_inform
+
   match /help ?([^ ]+)?$/, method: :command_help
 
   def command_associate(m, user)
@@ -109,6 +111,15 @@ class LastIRC
     api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user)[index - 1]
       m.reply("#{user}: #{format_track(track)}")
+    end
+  end
+
+  def command_inform(m, channel)
+    user = pstore_get(m)
+    return m.reply("Your nick is not associated with a Last.fm account", true) unless user
+    api_transaction(m) do
+      track = @lastfm.user.get_recent_tracks(user).first
+      Channel(channel).msg("#{m.user.nick} is listening to #{format_track(track)}")
     end
   end
 
@@ -217,7 +228,8 @@ class LastIRC
     hipsterbattle: "[-period] {users...}: Calculate which user has least mainstream taste",
     topartist: "[-period] [user]: Retrieve user's most played artist",
     topalbum: "[-period] [user]: Retrieve user's most played album",
-    toptrack: "[-period] [user]: Retrieve user's most played track"
+    toptrack: "[-period] [user]: Retrieve user's most played track",
+    inform: "{channel}: Inform channel of what you are listening to"
   }
 
   def command_help(m, command)
