@@ -119,7 +119,12 @@ class LastIRC
     return m.reply("Your nick is not associated with a Last.fm account", true) unless user
     api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user).first
-      Channel(channel).msg("#{m.user.nick} is listening to #{format_track(track)}")
+      if track['nowplaying']
+        # TODO: Chop off redundant "Listening now"
+        Channel(channel).msg("#{m.user.nick} is listening to #{format_track(track)}")
+      else
+        Channel(channel).msg("#{m.user.nick} last listened to #{format_track(track)}")
+      end
     end
   end
 
