@@ -89,19 +89,21 @@ class LastIRC
     end
   end
 
-  def format_track(track)
+  def format_track(track, include_parenthetical = true)
     s = ""
     s << track['artist']['content']
     s << ' - '
     s << track['name']
     s << ' [' << track['album']['content'] << ']' if track['album']['content']
-    s << ' ('
-    if track['nowplaying']
-      s << 'Listening now'
-    else
-      s << Time.at(track['date']['uts'].to_i).ago_in_words
+    if include_parenthetical
+      s << ' ('
+      if track['nowplaying']
+        s << 'Listening now'
+      else
+        s << Time.at(track['date']['uts'].to_i).ago_in_words
+      end
+      s << ')'
     end
-    s << ')'
     s 
   end
 
@@ -120,10 +122,9 @@ class LastIRC
     api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user).first
       if track['nowplaying']
-        # TODO: Chop off redundant "Listening now"
-        Channel(channel).msg("#{m.user.nick} is listening to #{format_track(track)}")
+        Channel(channel).msg("#{m.user.nick} is listening to #{format_track(track, false)}")
       else
-        Channel(channel).msg("#{m.user.nick} last listened to #{format_track(track)}")
+        Channel(channel).msg("#{m.user.nick} last listened to #{format_track(track, false)}")
       end
     end
   end
