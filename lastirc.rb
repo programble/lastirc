@@ -100,7 +100,7 @@ class LastIRC
     if track['nowplaying']
       s << 'Listening now'
     else
-      s << Time.at(track['date']['uts'].to_i).ago_in_words
+      s << Time.at(track['date']['uts'].to_i).time_ago_in_words
     end
     s << ')'
     s 
