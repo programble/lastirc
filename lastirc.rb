@@ -255,6 +255,10 @@ bot = Cinch::Bot.new do
     c.plugins.plugins = [Cinch::Plugins::BasicCTCP, LastIRC]
     c.plugins.options[Cinch::Plugins::BasicCTCP][:commands] = [:version, :time, :ping]
   end
+  
+  on :message, '`meep' do |m|
+    m.reply('meep')
+  end
 end
 
 bot.start
