@@ -9,7 +9,7 @@ GIT
       xml-simple
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     activesupport (3.2.8)
       i18n (~> 0.6)
@@ -24,7 +24,7 @@ GEM
     i18n (0.6.1)
     multi_json (1.3.6)
     multi_xml (0.5.1)
-    time-lord (0.2.5)
+    time-lord (1.0.1)
     xml-simple (1.1.2)
 
 PLATFORMS
@@ -35,4 +35,4 @@ DEPENDENCIES
   cinch-basic_ctcp
   configru (~> 3.1.0)
   lastfm!
-  time-lord (~> 0.2.0)
+  time-lord (~> 1.0.0)
