@@ -30,6 +30,9 @@ class LastIRC
 
     @pstore = PStore.new(Configru.pstore)
     @lastfm = Lastfm.new(Configru.lastfm.token, Configru.lastfm.secret)
+
+    # TODO: Expire this cache?
+    @chart_top = @lastfm.chart.get_top_artists(:limit => 0).map {|x| x['name'] }
   end
 
   def api_transaction(m, &block)
@@ -103,7 +106,7 @@ class LastIRC
       s << Time.at(track['date']['uts'].to_i).ago.to_words
     end
     s << ')'
-    s 
+    s
   end
 
   def command_last(m, index, user)
@@ -177,8 +180,6 @@ class LastIRC
 
   def calculate_hipster(m, period, user)
     api_transaction(m) do
-      # TODO: Expire this cache?
-      @chart_top ||= @lastfm.chart.get_top_artists(:limit => 0).map {|x| x['name'] }
       user_top = @lastfm.user.get_top_artists(:user => user, :period => period)
       total_weight = user_top.map {|x| x['playcount'].to_i }.reduce(:+)
       score = 0
