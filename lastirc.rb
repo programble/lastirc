@@ -52,6 +52,7 @@ class LastIRC
   match /assoc(?:iate)? ?([^ ]+)?$/, method: :command_associate
 
   match /last ?(-\d+)? ?([^ ]+)?$/, method: :command_last
+  match /first ?([^ ]+)?$/, method: :command_first
   match /plays ?([^ ]+)?$/, method: :command_plays
 
   match /compare ?([^ ]+)? ([^ ]+)$/, method: :command_compare
@@ -114,6 +115,14 @@ class LastIRC
     index = index ? -index.to_i : 1
     api_transaction(m) do
       track = @lastfm.user.get_recent_tracks(user)[index - 1]
+      m.reply("#{user}: #{format_track(track)}")
+    end
+  end
+
+  def command_first(m, user)
+    user = pstore_get(m) unless user
+    api_transaction(m) do
+      track = @lastfm.user.get_recent_tracks(:user => user, :limit => 1, :page => 999999999)
       m.reply("#{user}: #{format_track(track)}")
     end
   end
