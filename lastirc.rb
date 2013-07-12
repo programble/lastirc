@@ -23,7 +23,7 @@ end
 class LastIRC
   include Cinch::Plugin
 
-  set :prefix, Regexp.escape(Configru.irc.prefix)
+  set :prefix, Configru.irc.prefix
 
   def initialize(*args)
     super(*args)
