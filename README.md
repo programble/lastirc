@@ -1,5 +1,8 @@
 # Lastirc
 
+**Lastirc is now part of
+[Eleventhbot](https://github.com/programble/eleventhbot)**
+
 Last.fm IRC bot
 
 ## License
